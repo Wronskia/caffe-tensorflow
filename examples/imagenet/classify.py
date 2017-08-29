@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import tensorflow as tf
 import os.path as osp
-import time
+
 import models
 import dataset
 
@@ -15,14 +15,22 @@ def display_results(image_paths, probs):
         class_labels = map(str.strip, infile.readlines())
     # Pick the class with the highest confidence for each image
     class_indices = np.argmax(probs, axis=1)
+    print("class_indices =")
+    print(class_indices)
+    class_indices2=np.argsort(probs.flatten())[-5:]
+    print("class_indices2= ")
+    print(class_indices2)
+
     # Display the results
     print('\n{:20} {:30} {}'.format('Image', 'Classified As', 'Confidence'))
     print('-' * 70)
     for img_idx, image_path in enumerate(image_paths):
-        img_name = osp.basename(image_path)
-        class_name = class_labels[class_indices[img_idx]]
-        confidence = round(probs[img_idx, class_indices[img_idx]] * 100, 2)
-        print('{:20} {:30} {} %'.format(img_name, class_name, confidence))
+        for x in class_indices2:
+            img_name = osp.basename(image_path)
+            class_name = class_labels[x]
+            confidence = round(probs[img_idx, x] * 100, 2)
+            print('{:20} {:30} {} %'.format(img_name, class_name, confidence))
+
 
 
 def classify(model_data_path, image_paths):
@@ -41,8 +49,7 @@ def classify(model_data_path, image_paths):
     # Create an image producer (loads and processes images in parallel)
     image_producer = dataset.ImageProducer(image_paths=image_paths, data_spec=spec)
 
-    with tf.Session(config=tf.ConfigProto(
-    intra_op_parallelism_threads=1)) as sesh:
+    with tf.Session() as sesh:
         # Start the image processing workers
         coordinator = tf.train.Coordinator()
         threads = image_producer.start(session=sesh, coordinator=coordinator)
@@ -57,10 +64,7 @@ def classify(model_data_path, image_paths):
 
         # Perform a forward pass through the network to get the class probabilities
         print('Classifying')
-        start_time = time.time()
         probs = sesh.run(net.get_output(), feed_dict={input_node: input_images})
-        duration = time.time() - start_time
-        print(duration)
         display_results([image_paths[i] for i in indices], probs)
 
         # Stop the worker threads
