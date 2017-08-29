@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import tensorflow as tf
 import os.path as osp
-
+import time
 import models
 import dataset
 
@@ -56,7 +56,10 @@ def classify(model_data_path, image_paths):
 
         # Perform a forward pass through the network to get the class probabilities
         print('Timing in seconds :')
+        start_time = time.time()
         probs = sesh.run(net.get_output(), feed_dict={input_node: input_images})
+        duration = time.time() - start_time
+        print(duration)
         display_results([image_paths[i] for i in indices], probs)
 
         # Stop the worker threads
