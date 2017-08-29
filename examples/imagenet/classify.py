@@ -55,7 +55,7 @@ def classify(model_data_path, image_paths):
         indices, input_images = image_producer.get(sesh)
 
         # Perform a forward pass through the network to get the class probabilities
-        print('Classifying')
+        print('Timing in seconds :')
         probs = sesh.run(net.get_output(), feed_dict={input_node: input_images})
         display_results([image_paths[i] for i in indices], probs)
 
