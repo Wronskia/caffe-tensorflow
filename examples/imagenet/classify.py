@@ -45,7 +45,8 @@ def classify(model_data_path, image_paths):
     # Create an image producer (loads and processes images in parallel)
     image_producer = dataset.ImageProducer(image_paths=image_paths, data_spec=spec)
 
-    with tf.Session() as sesh:
+    with tf.Session(config=tf.ConfigProto(
+ +    intra_op_parallelism_threads=1)) as sesh:
         # Start the image processing workers
         coordinator = tf.train.Coordinator()
         threads = image_producer.start(session=sesh, coordinator=coordinator)
