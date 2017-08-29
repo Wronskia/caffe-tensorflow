@@ -15,11 +15,7 @@ def display_results(image_paths, probs):
         class_labels = map(str.strip, infile.readlines())
     # Pick the class with the highest confidence for each image
     class_indices = np.argmax(probs, axis=1)
-    print("class_indices =")
-    print(class_indices)
     class_indices2=np.argsort(probs.flatten())[-5:]
-    print("class_indices2= ")
-    print(class_indices2)
 
     # Display the results
     print('\n{:20} {:30} {}'.format('Image', 'Classified As', 'Confidence'))
@@ -63,7 +59,7 @@ def classify(model_data_path, image_paths):
         indices, input_images = image_producer.get(sesh)
 
         # Perform a forward pass through the network to get the class probabilities
-        print('Classifying')
+        print('Timing in seconds: ')
         probs = sesh.run(net.get_output(), feed_dict={input_node: input_images})
         display_results([image_paths[i] for i in indices], probs)
 
